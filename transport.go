@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/cretz/bine/tor"
 	"github.com/libp2p/go-libp2p-peer"
+	"golang.org/x/net/proxy"
 	"net"
 	"strconv"
 	"strings"
@@ -71,7 +72,8 @@ func isValidOnionMultiAddr(a ma.Multiaddr) bool {
 
 // OnionTransport implements go-libp2p-transport's Transport interface
 type OnionTransport struct {
-	tor           *tor.Tor
+	service       tor.OnionService
+	dialer        proxy.Dialer
 	dialOnlyOnion bool
 	laddr         ma.Multiaddr
 
@@ -83,9 +85,10 @@ type OnionTransport struct {
 var _ tpt.Transport = &OnionTransport{}
 
 // NewOnionTransport creates a new OnionTransport
-func NewOnionTransport(tor *tor.Tor, dialOnionOnly bool, upgrader *tptu.Upgrader) (*OnionTransport, error) {
+func NewOnionTransport(dialer proxy.Dialer, service tor.OnionService, dialOnionOnly bool, upgrader *tptu.Upgrader) (*OnionTransport, error) {
 	o := OnionTransport{
-		tor:           tor,
+		dialer:        dialer,
+		service:       service,
 		dialOnlyOnion: dialOnionOnly,
 		Upgrader:      upgrader,
 	}
@@ -98,20 +101,15 @@ type OnionTransportC func(*tptu.Upgrader) (tpt.Transport, error)
 
 // NewOnionTransportC is a convenience function that returns a function
 // suitable for passing into libp2p.Transport for host configuration
-func NewOnionTransportC(tor *tor.Tor, dialOnionOnly bool, upgrader *tptu.Upgrader) OnionTransportC {
+func NewOnionTransportC(dialer proxy.Dialer, service tor.OnionService, dialOnionOnly bool, upgrader *tptu.Upgrader) OnionTransportC {
 	return func(upgrader *tptu.Upgrader) (tpt.Transport, error) {
-		return NewOnionTransport(tor, dialOnionOnly, upgrader)
+		return NewOnionTransport(dialer, service, dialOnionOnly, upgrader)
 	}
 }
 
 // Dial dials a remote peer. It should try to reuse local listener
 // addresses if possible but it may choose not to.
 func (t *OnionTransport) Dial(ctx context.Context, raddr ma.Multiaddr, p peer.ID) (tpt.Conn, error) {
-	dialer, err := t.tor.Dialer(context.Background(), nil)
-	if err != nil {
-		return nil, err
-	}
-
 	netaddr, err := manet.ToNetAddr(raddr)
 	var onionAddress string
 	if err != nil {
@@ -130,9 +128,9 @@ func (t *OnionTransport) Dial(ctx context.Context, raddr ma.Multiaddr, p peer.ID
 	}
 	if onionAddress != "" {
 		split := strings.Split(onionAddress, ":")
-		onionConn.Conn, err = dialer.Dial("tcp4", split[0]+".onion:"+split[1])
+		onionConn.Conn, err = t.dialer.Dial("tcp4", split[0]+".onion:"+split[1])
 	} else {
-		onionConn.Conn, err = dialer.Dial(netaddr.Network(), netaddr.String())
+		onionConn.Conn, err = t.dialer.Dial(netaddr.Network(), netaddr.String())
 	}
 	if err != nil {
 		return nil, err
@@ -161,28 +159,17 @@ func (t *OnionTransport) Listen(laddr ma.Multiaddr) (tpt.Listener, error) {
 		return nil, fmt.Errorf("failed to parse onion address")
 	}
 
-	// convert port string to int
-	port, err := strconv.Atoi(addr[1])
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert onion service port to int")
-	}
-
 	listener := OnionListener{
 		laddr:     laddr,
 		Upgrader:  t.Upgrader,
 		transport: t,
 	}
 
-	onion, err := t.tor.Listen(context.Background(), &tor.ListenConf{RemotePorts: []int{port}})
-	if err != nil {
-		return nil, fmt.Errorf("failed to create onion service: %v", err)
+	if addr[0] != t.service.ID {
+		return nil, errors.New("incorrect onion address")
 	}
 
-	if onion.ID != addr[0] {
-		return nil, errors.New("onion address does not match")
-	}
-
-	listener.listener = onion.LocalListener
+	listener.listener = t.service.LocalListener
 	t.laddr = laddr
 
 	return &listener, nil

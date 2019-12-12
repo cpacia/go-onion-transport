@@ -48,11 +48,6 @@ func isValidOnionMultiAddr(a ma.Multiaddr) bool {
 		return false
 	}
 
-	// onion address without the ".onion" substring
-	if len(split[0]) != 16 {
-		fmt.Println(split[0])
-		return false
-	}
 	_, err = base32.StdEncoding.DecodeString(strings.ToUpper(split[0]))
 	if err != nil {
 		return false
@@ -192,10 +187,10 @@ func (t *OnionTransport) CanDial(a ma.Multiaddr) bool {
 
 // Protocols returns the list of terminal protocols this transport can dial.
 func (t *OnionTransport) Protocols() []int {
-	if !t.dialOnlyOnion {
-		return []int{ma.P_ONION, ma.P_TCP}
+	if t.dialOnlyOnion {
+		return []int{ma.P_ONION, ma.P_ONION3}
 	} else {
-		return []int{ma.P_ONION}
+		return []int{ma.P_ONION, ma.P_ONION3, ma.P_TCP}
 	}
 }
 

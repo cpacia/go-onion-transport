@@ -72,7 +72,7 @@ func isValidOnionMultiAddr(a ma.Multiaddr) bool {
 
 // OnionTransport implements go-libp2p-transport's Transport interface
 type OnionTransport struct {
-	service       tor.OnionService
+	service       *tor.OnionService
 	dialer        proxy.Dialer
 	dialOnlyOnion bool
 	laddr         ma.Multiaddr
@@ -85,7 +85,7 @@ type OnionTransport struct {
 var _ tpt.Transport = &OnionTransport{}
 
 // NewOnionTransport creates a new OnionTransport
-func NewOnionTransport(dialer proxy.Dialer, service tor.OnionService, dialOnionOnly bool, upgrader *tptu.Upgrader) (*OnionTransport, error) {
+func NewOnionTransport(dialer proxy.Dialer, service *tor.OnionService, dialOnionOnly bool, upgrader *tptu.Upgrader) (*OnionTransport, error) {
 	o := OnionTransport{
 		dialer:        dialer,
 		service:       service,
@@ -101,7 +101,7 @@ type OnionTransportC func(*tptu.Upgrader) (tpt.Transport, error)
 
 // NewOnionTransportC is a convenience function that returns a function
 // suitable for passing into libp2p.Transport for host configuration
-func NewOnionTransportC(dialer proxy.Dialer, service tor.OnionService, dialOnionOnly bool, upgrader *tptu.Upgrader) OnionTransportC {
+func NewOnionTransportC(dialer proxy.Dialer, service *tor.OnionService, dialOnionOnly bool) OnionTransportC {
 	return func(upgrader *tptu.Upgrader) (tpt.Transport, error) {
 		return NewOnionTransport(dialer, service, dialOnionOnly, upgrader)
 	}

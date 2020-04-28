@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	tpt "github.com/libp2p/go-libp2p-transport"
+	tpt "github.com/libp2p/go-libp2p-core/transport"
 	tptu "github.com/libp2p/go-libp2p-transport-upgrader"
 	ma "github.com/multiformats/go-multiaddr"
 	"github.com/multiformats/go-multiaddr-net"
@@ -104,7 +104,7 @@ func NewOnionTransportC(dialer proxy.Dialer, service *tor.OnionService, dialOnio
 
 // Dial dials a remote peer. It should try to reuse local listener
 // addresses if possible but it may choose not to.
-func (t *OnionTransport) Dial(ctx context.Context, raddr ma.Multiaddr, p peer.ID) (tpt.Conn, error) {
+func (t *OnionTransport) Dial(ctx context.Context, raddr ma.Multiaddr, p peer.ID) (tpt.CapableConn, error) {
 	netaddr, err := manet.ToNetAddr(raddr)
 	var onionAddress string
 	if err != nil {
@@ -210,7 +210,7 @@ type OnionListener struct {
 // Accept blocks until a connection is received returning
 // go-libp2p-transport's Conn interface or an error if
 // something went wrong
-func (l *OnionListener) Accept() (tpt.Conn, error) {
+func (l *OnionListener) Accept() (tpt.CapableConn, error) {
 	conn, err := l.listener.Accept()
 	if err != nil {
 		return nil, err

@@ -40,7 +40,12 @@ func main() {
 	torDir := path.Join(dataDir, "tor")
 
 	// Create the embedded Tor client.
-	torClient, err := tor.Start(nil, &tor.StartConf{ProcessCreator: libtor.Creator, DataDir: torDir})
+	torClient, err := tor.Start(nil, &tor.StartConf{
+		ProcessCreator: libtor.Creator,
+		DataDir: torDir,
+		NoAutoSocksPort: true,
+		EnableNetwork: true,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -22,6 +22,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/peerstore"
 	"github.com/libp2p/go-libp2p/config"
 	"github.com/multiformats/go-multiaddr"
+	madns "github.com/multiformats/go-multiaddr-dns"
 	"path"
 )
 
@@ -69,6 +70,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	
+	// Create a DNSResolver. We need this because libp2p address may contain a DNS hostname that
+	// will be resolved before dialing. If we do not configure the resolver to use Tor we will blow
+	// any anonymity we gained by using Tor.
+	// 
+	// Note you must enter the SOCKS5 address here. This can be configured in the tor.StartConf.
+	madns.DefaultResolver = oniontransport.NewTorResover("localhost:9050")
 
 	// If this option is true then the transport will only attempt to dial out to onion
 	// addresses. If libp2p requests to dial out on another type of address, TCP for example,
@@ -155,8 +163,7 @@ func main() {
 	// IPFS is now configured to use Tor.
 	
 	// WARNING: Passing a hostname into an IPNS Resolve will likely route the the DNS name resolution
-	// in the clear and not through Tor. It may be possible to use the Tor client for name resolution 
-	// and create a DNSResolver option for the IPNS Namesys but we'd need to get this change into IPFS.
-	// For now, take care to avoid resolving hostnames. 
+	// in the clear and not through Tor. It should be a small change to IPFS to use the madns.DefaultResover
+	// but we need to get it merged and released first. 
 }
 ```

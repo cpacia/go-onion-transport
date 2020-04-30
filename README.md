@@ -40,7 +40,12 @@ func main() {
 	torDir := path.Join(dataDir, "tor")
 
 	// Create the embedded Tor client.
-	torClient, err := tor.Start(nil, &tor.StartConf{ProcessCreator: libtor.Creator, DataDir: torDir})
+	torClient, err := tor.Start(nil, &tor.StartConf{
+		ProcessCreator: libtor.Creator,
+		DataDir: torDir,
+		NoAutoSocksPort: true,
+		EnableNetwork: true,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -148,5 +153,10 @@ func main() {
 	}
 
 	// IPFS is now configured to use Tor.
+	
+	// WARNING: Passing a hostname into an IPNS Resolve will likely route the the DNS name resolution
+	// in the clear and not through Tor. It may be possible to use the Tor client for name resolution 
+	// and create a DNSResolver option for the IPNS Namesys but we'd need to get this change into IPFS.
+	// For now, take care to avoid resolving hostnames. 
 }
 ```

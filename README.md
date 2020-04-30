@@ -91,10 +91,10 @@ func main() {
 
 	// The transport option is passed in along with the FallbackDefaults options. FallbackDefaults
 	// only applies the default options if no other option is provided. In this case we provided
-	// the Tor transport so this configure should ONLY use the Tor transport and no other transports.
+	// the Tor transport so this configuration should ONLY use the Tor transport and no other transports.
 	//
 	// Using libp2p.Defaults instead of libp2p.FallbackDefaults would append the Tor transport to the
-	// the exist lists of transports.
+	// the existing list of transports.
 	peerHost, err := libp2p.New(context.Background(), transportOpt, addressOpt, libp2p.FallbackDefaults)
 	if err != nil {
 		log.Fatal(err)

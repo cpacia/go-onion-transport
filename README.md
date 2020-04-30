@@ -71,9 +71,9 @@ func main() {
 		log.Fatal(err)
 	}
 	
-	// Create a DNSResolver. We need this because libp2p address may contain a DNS hostname that
-	// will be resolved before dialing. If we do not configure the resolver to use Tor we will blow
-	// any anonymity we gained by using Tor.
+	// Override the default lip2p DNS resolver. We need this because libp2p address may contain a 
+	// DNS hostname that will be resolved before dialing. If we do not configure the resolver to 
+	// use Tor we will blow any anonymity we gained by using Tor.
 	// 
 	// Note you must enter the SOCKS5 address here. This can be configured in the tor.StartConf.
 	madns.DefaultResolver = oniontransport.NewTorResover("localhost:9050")

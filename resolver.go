@@ -7,10 +7,6 @@ import (
 	"time"
 )
 
-type torBackend struct {
-	proxy string
-}
-
 // NewTorResover returns a no madns.Resolver that will resolve
 // IP addresses over Tor.
 //

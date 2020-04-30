@@ -42,7 +42,7 @@ func main() {
 
 	// Create the embedded Tor client.
 	torClient, err := tor.Start(nil, &tor.StartConf{
-		ProcessCreator: libtor.Creator,
+		ProcessCreator:  libtor.Creator,
 		DataDir:         torDir,
 		NoAutoSocksPort: true,
 		EnableNetwork:   true,

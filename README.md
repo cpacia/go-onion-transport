@@ -43,9 +43,10 @@ func main() {
 	// Create the embedded Tor client.
 	torClient, err := tor.Start(nil, &tor.StartConf{
 		ProcessCreator: libtor.Creator,
-		DataDir: torDir,
+		DataDir:         torDir,
 		NoAutoSocksPort: true,
-		EnableNetwork: true,
+		EnableNetwork:   true,
+		ExtraArgs:       []string{"--DNSPort", "2121"},
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -75,8 +76,8 @@ func main() {
 	// will be resolved before dialing. If we do not configure the resolver to use Tor we will blow
 	// any anonymity we gained by using Tor.
 	// 
-	// Note you must enter the SOCKS5 address here. This can be configured in the tor.StartConf.
-	madns.DefaultResolver = oniontransport.NewTorResover("localhost:9050")
+	// Note you must enter the DNS resolver address that was used when creating the Tor client.
+	madns.DefaultResolver = oniontransport.NewTorResover("localhost:2121")
 
 	// If this option is true then the transport will only attempt to dial out to onion
 	// addresses. If libp2p requests to dial out on another type of address, TCP for example,

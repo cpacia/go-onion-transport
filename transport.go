@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/cretz/bine/tor"
-	"github.com/libp2p/go-libp2p-peer"
+	"github.com/libp2p/go-libp2p-core/peer"
 	"golang.org/x/net/proxy"
 	"net"
 	"strconv"
@@ -15,7 +15,7 @@ import (
 	tpt "github.com/libp2p/go-libp2p-core/transport"
 	tptu "github.com/libp2p/go-libp2p-transport-upgrader"
 	ma "github.com/multiformats/go-multiaddr"
-	"github.com/multiformats/go-multiaddr-net"
+	"github.com/multiformats/go-multiaddr/net"
 	"github.com/whyrusleeping/mafmt"
 )
 

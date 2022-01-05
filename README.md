@@ -1,6 +1,6 @@
 # go-onion-transport
 
-This library contains a Tor transport implementation for libp2p (v0.8.3) that uses an embedded Tor client. 
+This library contains a Tor transport implementation for libp2p (v0.13.0) that uses an embedded Tor client. 
 
 #### Usage
 

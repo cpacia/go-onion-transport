@@ -11,7 +11,7 @@ require (
 	github.com/multiformats/go-multiaddr-dns v0.3.1
 	github.com/multiformats/go-multiaddr-net v0.1.2
 	github.com/whyrusleeping/mafmt v1.2.8
-	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550 // indirect
-	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110
+	golang.org/x/crypto v0.1.0 // indirect
+	golang.org/x/net v0.1.0
 	golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898 // indirect
 )
